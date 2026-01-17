@@ -1,0 +1,156 @@
+---
+title: "Introduction to advmaic"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to advmaic}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+```{r setup}
+library(advmaic)
+library(dplyr)
+```
+
+## Overview
+
+The `advmaic` package implements advanced methods for Matching-Adjusted Indirect Comparisons (MAIC). MAIC is a technique for comparing treatments across trials when individual patient data (IPD) is available from one trial but only aggregate data (AgD) is available from another.
+
+This package extends standard MAIC by implementing:
+
+1. **Non-uniform base weights** for combining MAIC with other adjustments
+2. **Alternative loss functions** from the Cressie-Read divergence family
+3. **Arm-separate weighting** schemes
+4. **Combined adjustment methods** (MAIC + IPCW, MAIC + NPCA)
+
+## Basic Example
+
+### Step 1: Prepare Data
+
+```{r simulate-data}
+# Simulate IPD from index trial (A vs B)
+set.seed(123)
+n <- 300
+
+ipd <- data.frame(
+  age = rnorm(n, 55, 10),
+  male = rbinom(n, 1, 0.6),
+  biomarker = rnorm(n, 100, 20),
+  treatment = rep(c(0, 1), each = n/2),  # 0 = A, 1 = B
+  outcome = rbinom(n, 1, 0.3)
+)
+
+# Target aggregate data from comparator trial (A vs C)
+agd_target <- c(age = 60, male = 0.5, biomarker = 110)
+```
+
+### Step 2: Estimate MAIC Weights
+
+```{r estimate-weights}
+# Estimate weights using entropy balancing
+weights <- estimate_weights(
+  ipd = ipd,
+  agd_target = agd_target,
+  covariates = c("age", "male", "biomarker"),
+  method = "entropy"
+)
+
+print(weights)
+```
+
+### Step 3: Check Balance
+
+```{r check-balance}
+# Verify covariate balance
+balance <- check_balance(
+  ipd = ipd,
+  agd_target = agd_target,
+  weights = weights,
+  covariates = c("age", "male", "biomarker")
+)
+
+print(balance)
+```
+
+### Step 4: Visualize Weights
+
+```{r plot-weights}
+# Weight distribution
+plot(weights, type = "both")
+```
+
+### Step 5: Estimate Treatment Effect
+
+```{r estimate-ate}
+# Estimate weighted treatment effect (B vs A)
+ate <- estimate_ate(
+  ipd = ipd,
+  weights = weights,
+  outcome_var = "outcome",
+  treatment_var = "treatment",
+  outcome_type = "binary",
+  estimand = "or",
+  variance_method = "robust"
+)
+
+print(ate)
+```
+
+### Step 6: Indirect Comparison
+
+```{r indirect-comparison}
+# Suppose from the AC trial aggregate data:
+# Log OR of C vs A = -0.4, SE = 0.15
+d_AC <- -0.4
+var_AC <- 0.15^2
+
+# Bucher indirect comparison (B vs C)
+idc <- bucher_idc(
+  d_AB = ate$estimate,
+  var_AB = ate$se^2,
+  d_AC = d_AC,
+  var_AC = var_AC
+)
+
+print(idc)
+```
+
+## Full Analysis Pipeline
+
+The `maic_analysis()` function combines all steps:
+```{r full-pipeline, eval=FALSE}
+result <- maic_analysis(
+  ipd = ipd,
+  agd_target = agd_target,
+  agd_effect = -0.4,      # d_AC
+  agd_var = 0.15^2,       # var(d_AC)
+  covariates = c("age", "male", "biomarker"),
+  outcome_var = "outcome",
+  treatment_var = "treatment",
+  outcome_type = "binary",
+  estimand = "or"
+)
+
+# Access results
+result$weights     # MAIC weights
+result$balance     # Balance check
+result$ate         # Treatment effect B vs A
+result$idc         # Indirect comparison B vs C
+```
+
+## Next Steps
+
+See the other vignettes for more advanced topics:
+
+- `vignette("nonuniform_base_weights")` - Combining MAIC with other adjustments
+- `vignette("arm_separate_weighting")` - Arm-separate weighting methods
+- `vignette("alternative_loss_functions")` - Exploring the Cressie-Read family

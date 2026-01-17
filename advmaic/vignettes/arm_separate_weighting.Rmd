@@ -1,0 +1,186 @@
+---
+title: "Arm-Separate Weighting Methods"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Arm-Separate Weighting Methods}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+```{r setup}
+library(advmaic)
+library(dplyr)
+```
+
+## Background
+
+Standard MAIC (SigTotal, EbTotal) matches the total IPD population to the total AgD population. However, Petto et al. (2019) demonstrated that when arm-specific aggregate data is available, separate matching for treatment and control arms can be beneficial.
+
+### Why Arm-Separate?
+
+1. **Different covariate distributions by arm**: Even with randomization, arms may have slightly different covariate distributions
+2. **Preserve arm-specific balance**: Matching separately ensures each arm matches its AgD counterpart
+3. **Potential efficiency gains**: Can lead to lower variance in some scenarios
+
+## Methods
+
+### EbArm: Arm-Separate Entropy Balancing
+
+```{r eb-arm}
+# Simulate data
+set.seed(789)
+n <- 400
+
+ipd <- data.frame(
+  age = rnorm(n, 55, 10),
+  male = rbinom(n, 1, 0.6),
+  treatment = rep(c(0, 1), each = n/2),
+  outcome = rbinom(n, 1, 0.3)
+)
+
+# Arm-specific targets from comparator trial
+# (In practice, these come from published arm-specific summary statistics)
+agd_target_arm <- list(
+  treatment = c(age = 58, male = 0.55),
+  control = c(age = 62, male = 0.45)
+)
+
+# Arm-separate weighting
+weights_arm <- eb_arm_separate(
+  ipd = ipd,
+  agd_target = agd_target_arm,
+  covariates = c("age", "male"),
+  arm_var = "treatment",
+  treatment_value = 1,
+  control_value = 0
+)
+
+print(weights_arm)
+```
+
+### Compare with Total Population Matching
+
+```{r compare}
+# Total population target (average of arm-specific)
+agd_target_total <- c(
+  age = mean(c(58, 62)),
+  male = mean(c(0.55, 0.45))
+)
+
+weights_total <- estimate_weights(
+  ipd = ipd,
+  agd_target = agd_target_total,
+  covariates = c("age", "male")
+)
+
+cat("Total matching ESS:", round(weights_total$ess, 1), "\n")
+cat("Arm-separate ESS:", round(weights_arm$ess, 1), "\n")
+```
+
+### Check Balance by Arm
+
+```{r balance-by-arm}
+# Check balance for treatment arm
+ipd_trt <- ipd[ipd$treatment == 1, ]
+weights_trt <- weights_arm$weights[ipd$treatment == 1]
+
+cat("\nTreatment arm balance:\n")
+cat("Weighted age:", round(sum(weights_trt * ipd_trt$age) / sum(weights_trt), 2),
+    "vs target", agd_target_arm$treatment["age"], "\n")
+cat("Weighted male:", round(sum(weights_trt * ipd_trt$male) / sum(weights_trt), 3),
+    "vs target", agd_target_arm$treatment["male"], "\n")
+
+# Check balance for control arm
+ipd_ctrl <- ipd[ipd$treatment == 0, ]
+weights_ctrl <- weights_arm$weights[ipd$treatment == 0]
+
+cat("\nControl arm balance:\n")
+cat("Weighted age:", round(sum(weights_ctrl * ipd_ctrl$age) / sum(weights_ctrl), 2),
+    "vs target", agd_target_arm$control["age"], "\n")
+cat("Weighted male:", round(sum(weights_ctrl * ipd_ctrl$male) / sum(weights_ctrl), 3),
+    "vs target", agd_target_arm$control["male"], "\n")
+```
+
+## EbArmILD: With ILD Covariate Balancing
+
+When some covariates are only available in the IPD (not reported in AgD), EbArmILD additionally balances these "IPD-only" (ILD) covariates between treatment arms.
+
+```{r eb-arm-ild}
+# Add an ILD-only covariate (e.g., genetic marker not in AgD)
+ipd$genetic_score <- rnorm(n, 50, 15)
+
+# EbArmILD balances:
+# - Common covariates to arm-specific AgD targets
+# - ILD covariates between IPD arms
+weights_ild <- eb_arm_ild(
+  ipd = ipd,
+  agd_target = agd_target_arm,
+  common_covariates = c("age", "male"),
+  ild_covariates = c("genetic_score"),
+  arm_var = "treatment",
+  treatment_value = 1,
+  control_value = 0
+)
+
+print(weights_ild)
+
+# Check ILD covariate balance
+cat("\nILD covariate balance (genetic_score):\n")
+cat("Treatment arm:", round(sum(weights_ild$weights[ipd$treatment == 1] *
+    ipd$genetic_score[ipd$treatment == 1]) /
+    sum(weights_ild$weights[ipd$treatment == 1]), 2), "\n")
+cat("Control arm:", round(sum(weights_ild$weights[ipd$treatment == 0] *
+    ipd$genetic_score[ipd$treatment == 0]) /
+    sum(weights_ild$weights[ipd$treatment == 0]), 2), "\n")
+```
+
+## SigTotalVar: Variance Matching
+
+When AgD includes variances (or standard deviations), you can match both means and variances:
+
+```{r sig-total-var}
+# Target with variances
+agd_target_var <- c(
+  age = 60,
+  age_var = 100,  # SD = 10
+  male = 0.5
+  # Note: variance of binary variable = p(1-p)
+)
+
+weights_var <- sig_total_var(
+  ipd = ipd,
+  agd_target = agd_target_var,
+  covariates = c("age", "male")
+)
+
+print(weights_var)
+
+# Check variance balance
+w <- weights_var$weights
+weighted_age_var <- sum(w * (ipd$age - sum(w * ipd$age))^2) / sum(w)
+cat("\nWeighted age variance:", round(weighted_age_var, 1),
+    "vs target", agd_target_var["age_var"], "\n")
+```
+
+## Practical Recommendations
+
+1. **Use arm-separate when arm-specific AgD is available**: This provides more precise matching
+
+2. **EbArmILD when strong prognostic ILD covariates exist**: Balancing these between arms can reduce variance
+
+3. **Check ESS carefully**: Arm-separate methods may have lower ESS in some scenarios
+
+4. **Variance matching requires accurate variance estimates**: Only use if AgD variances are reliable
+
+## References
+
+- Petto H, et al. (2019). Alternative weighting approaches for anchored matching-adjusted indirect comparisons via a common comparator. *Value in Health*.

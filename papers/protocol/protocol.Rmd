@@ -1,0 +1,307 @@
+---
+title: "Protocol for a Simulation Study Comparing Novel Weighting Approaches for Matching-Adjusted Indirect Comparisons"
+author:
+  - name: Ahmad Sofi-Mahmudi
+    affiliation: "1"
+    email: a.sofimahmudi@gmail.com
+affiliation:
+  - id: "1"
+    institution: ""
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+bibliography: references.bib
+csl: research-synthesis-methods.csl
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+```
+
+# Abstract
+
+**Background:** Matching-Adjusted Indirect Comparisons (MAIC) are increasingly used to compare treatments across trials with different patient populations. Recent methodological work has demonstrated the equivalence between entropy balancing and method of moments approaches, opening avenues for novel weighting strategies including non-uniform base weights, alternative loss functions, and arm-separate weighting schemes.
+
+**Objectives:** This protocol describes a comprehensive simulation study to evaluate the performance of novel MAIC weighting approaches compared to standard methods across diverse scenarios.
+
+**Methods:** We will compare 11 weighting methods across 54 simulation scenarios varying sample size, number of covariates, population overlap, effect modification, and outcome type. Primary outcomes include bias, root mean squared error, 95% confidence interval coverage, and effective sample size. We will conduct 1,000 iterations per scenario.
+
+**Conclusion:** This simulation study will provide evidence-based guidance on optimal weighting approaches for MAIC under various conditions, supporting practitioners in selecting appropriate methods for indirect treatment comparisons.
+
+\newpage
+
+# Introduction
+
+## Background
+
+Matching-adjusted indirect comparisons (MAIC) have become an essential tool in health technology assessment when direct head-to-head trials are unavailable [@signorovitch2010; @signorovitch2012]. MAIC reweights individual patient data (IPD) from an index trial to match the covariate distribution of aggregate data (AgD) from a comparator trial, enabling population-adjusted indirect treatment comparisons.
+
+The theoretical foundation of MAIC was strengthened by Phillippo et al. [-@phillippo2020], who demonstrated the mathematical equivalence between the method of moments (standard MAIC) and entropy balancing approaches. This equivalence opens several novel research directions:
+
+1. **Non-uniform base weights**: Using pre-specified weights as the starting point for entropy balancing, enabling combination with other adjustment methods
+2. **Alternative loss functions**: Exploring the Cressie-Read divergence family beyond standard entropy
+3. **Arm-separate weighting**: Matching covariates separately for treatment and control arms
+
+Petto et al. [-@petto2019] conducted a simulation study comparing several alternative weighting approaches for anchored MAIC, demonstrating potential benefits of arm-separate weighting (EbArm, EbArmILD) under certain conditions.
+
+## Rationale
+
+Despite growing use of MAIC in regulatory submissions and HTA, guidance on optimal weighting methods is limited. Existing studies have examined standard MAIC and a few alternatives, but the novel directions suggested by Phillippo et al. [-@phillippo2020]—particularly non-uniform base weights combining MAIC with variance reduction (Williamson et al. [-@williamson2014]) or treatment switching adjustment (IPCW)—have not been systematically evaluated.
+
+## Objectives
+
+The primary objective of this simulation study is to compare the performance of novel MAIC weighting approaches with standard methods across a comprehensive range of scenarios relevant to real-world applications.
+
+### Specific Aims
+
+1. Evaluate the relative performance of 11 weighting methods in terms of bias, precision, and coverage
+2. Identify scenario characteristics (sample size, population overlap, effect modification) that influence method performance
+3. Assess the bias-variance tradeoff of different approaches
+4. Provide practical recommendations for method selection
+
+# Methods
+
+## Weighting Methods
+
+We will compare the following 11 weighting methods:
+
+```{r methods-table}
+methods_df <- data.frame(
+  Method = c("Bucher", "SigTotal", "SigTotalVar", "SigArm", "EbTotal",
+             "EbArm", "EbArmILD", "EbNPCA", "EbEL", "EbCR0.5", "EbCR1"),
+  Description = c(
+    "Standard indirect comparison (no matching)",
+    "Method of moments, total population",
+    "Method of moments with variance matching",
+    "Method of moments, arm-separate",
+    "Entropy balancing, total population",
+    "Entropy balancing, arm-separate",
+    "Entropy balancing, arm-separate + ILD balancing",
+    "Entropy balancing with NPCA base weights",
+    "Empirical likelihood loss function",
+    "Cressie-Read divergence (γ=0.5)",
+    "Chi-squared divergence (γ=1)"
+  ),
+  Reference = c(
+    "Bucher et al. 1997",
+    "Signorovitch et al. 2010",
+    "Petto et al. 2019",
+    "Petto et al. 2019",
+    "Hainmueller 2012",
+    "Petto et al. 2019",
+    "Petto et al. 2019",
+    "Phillippo et al. 2020; Williamson et al. 2014",
+    "Owen 2001",
+    "Cressie & Read 1984",
+    "Cressie & Read 1984"
+  )
+)
+
+kable(methods_df, caption = "Weighting methods to be compared",
+      booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "hold_position", "scale_down"))
+```
+
+### Method Descriptions
+
+#### Standard Methods
+
+**Bucher (unadjusted)**: Standard indirect comparison without matching. Provides a reference for assessing the benefit of population adjustment.
+
+**SigTotal**: Standard MAIC using method of moments to estimate weights that match IPD covariate means to AgD targets. Mathematically equivalent to entropy balancing with uniform base weights.
+
+**SigTotalVar**: Extension of SigTotal that matches both means and variances of covariates, requiring variance information in the AgD.
+
+**SigArm/EbArm**: Arm-separate weighting that matches treatment and control arms separately to arm-specific AgD targets.
+
+#### Novel Methods
+
+**EbArmILD**: Arm-separate weighting with additional balancing of IPD-specific covariates (variables available in IPD but not reported in AgD) between treatment arms.
+
+**EbNPCA**: Entropy balancing with non-uniform base weights derived from nonparametric covariate adjustment (NPCA). Base weights are inverse probability treatment weights that balance prognostic covariates, potentially reducing variance.
+
+**EbEL**: Uses empirical likelihood loss (γ=-1 in Cressie-Read family) instead of standard entropy, which may provide better second-order properties for inference.
+
+**EbCR0.5, EbCR1**: Alternative Cressie-Read divergences (γ=0.5, γ=1 respectively), exploring whether loss function choice affects performance.
+
+## Simulation Design
+
+### Data Generation
+
+We will generate two-trial scenarios with:
+
+- **AB trial (index)**: Individual patient data with treatments A and B
+- **AC trial (comparator)**: Aggregate data with treatments A and C
+
+The data generating process follows Petto et al. [-@petto2019]:
+
+$$
+Y_{ijk} = \alpha_j + \sum_{k=1}^{p} \beta_k X_{ijk} + \tau_j T_{ij} + \sum_{k \in EM} \gamma_k X_{ijk} T_{ij} + \epsilon_{ijk}
+$$
+
+where:
+- $Y_{ijk}$ is the outcome for patient $i$ in trial $j$ for covariate $k$
+- $\alpha_j$ is the trial-specific intercept
+- $\beta_k$ are prognostic coefficients
+- $\tau_j$ is the treatment effect
+- $\gamma_k$ are effect modification coefficients
+- $EM$ is the set of effect modifiers
+- $\epsilon_{ijk} \sim N(0, \sigma^2)$ for continuous outcomes
+
+For binary outcomes, we use a logistic link:
+$$
+\log\left(\frac{P(Y=1)}{1-P(Y=1)}\right) = \alpha_j + \sum_{k=1}^{p} \beta_k X_{ijk} + \tau_j T_{ij} + \sum_{k \in EM} \gamma_k X_{ijk} T_{ij}
+$$
+
+Population differences are induced by shifting covariate means between trials:
+$$
+X_{ijk}^{AC} \sim N(\mu_k + \delta_k, \sigma_k^2)
+$$
+where $\delta_k$ controls the magnitude of population shift.
+
+### Scenario Factors
+
+```{r scenarios-table}
+scenarios_df <- data.frame(
+  Factor = c("IPD sample size (n_AB)",
+             "AgD sample size (n_AC)",
+             "Number of covariates",
+             "Population overlap",
+             "Effect modifiers",
+             "Outcome type"),
+  Levels = c("100, 300, 500",
+             "500 (fixed)",
+             "3, 6",
+             "High (δ=0.2), Medium (δ=0.5), Low (δ=1.0)",
+             "None, 1, 2",
+             "Binary (primary), Continuous")
+)
+
+kable(scenarios_df, caption = "Simulation scenario factors",
+      booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "hold_position"))
+```
+
+The full factorial design yields **54 primary scenarios** (3 × 2 × 3 × 3 × 1 = 54 for binary outcomes).
+
+### True Treatment Effect
+
+The true indirect comparison effect (B vs C) is:
+$$
+\theta_{BC}^{true} = \tau_{AB} - \tau_{AC}
+$$
+where $\tau_{AB} = -0.5$ and $\tau_{AC} = -0.7$ (log odds ratio scale), giving $\theta_{BC}^{true} = 0.2$.
+
+### Number of Iterations
+
+We will conduct **1,000 iterations per scenario**, aligned with Petto et al. [-@petto2019]. This provides:
+- Standard error of coverage estimate: $\sqrt{0.95 \times 0.05 / 1000} \approx 0.007$
+- Adequate precision for comparing methods
+
+## Outcomes and Performance Metrics
+
+### Primary Outcomes
+
+1. **Bias**: $\bar{\hat{\theta}} - \theta^{true}$
+2. **Root Mean Squared Error (RMSE)**: $\sqrt{MSE} = \sqrt{E[(\hat{\theta} - \theta^{true})^2]}$
+3. **95% CI Coverage**: Proportion of CIs containing the true value
+4. **Effective Sample Size (ESS)**: $\frac{(\sum w_i)^2}{\sum w_i^2}$
+
+### Secondary Outcomes
+
+5. **Empirical standard error**: SD of estimates across iterations
+6. **Model-based standard error**: Mean of estimated SEs
+7. **SE ratio**: Model SE / Empirical SE (calibration)
+8. **Convergence rate**: Proportion of iterations with successful optimization
+9. **Computation time**: Average time per iteration
+
+## Statistical Analysis
+
+### Performance Comparison
+
+For each scenario-method combination, we will calculate all performance metrics with 95% Monte Carlo confidence intervals.
+
+Results will be summarized as:
+- Tables showing metrics by method averaged across scenarios
+- Tables stratified by key scenario characteristics
+- Forest plots comparing methods
+- Bias-ESS tradeoff plots
+
+### Ranking Methods
+
+We will rank methods within each scenario based on RMSE (primary) and present the distribution of ranks across scenarios. Methods will be compared using pairwise differences with Monte Carlo standard errors.
+
+## Software and Reproducibility
+
+All analyses will be conducted in R (version 4.3+) using the `advmaic` package (version 0.1.0) developed for this study. The simulation code, including data generation, method implementation, and analysis scripts, will be made publicly available at https://github.com/choxos/advmaic.
+
+Key packages:
+- `advmaic`: Novel MAIC methods
+- `boot`: Bootstrap variance estimation
+- `sandwich`: Robust variance estimation
+- `parallel`: Parallel processing
+
+Random seeds will be fixed and reported to ensure reproducibility.
+
+# Timeline
+
+| Phase | Activities | Duration |
+|-------|------------|----------|
+| 1 | Package development and validation | Weeks 1-4 |
+| 2 | Pilot simulation (10% scale) | Week 5 |
+| 3 | Full simulation execution | Weeks 6-10 |
+| 4 | Results analysis and visualization | Weeks 11-12 |
+| 5 | Manuscript preparation | Weeks 13-16 |
+
+# Discussion
+
+## Expected Contributions
+
+This simulation study will:
+
+1. Provide the first systematic comparison of novel MAIC weighting approaches suggested by Phillippo et al. [-@phillippo2020]
+2. Evaluate arm-separate weighting (EbArm, EbArmILD) across a broader range of scenarios than Petto et al. [-@petto2019]
+3. Assess whether NPCA base weights can improve efficiency without increasing bias
+4. Determine if alternative loss functions offer advantages over standard entropy
+
+## Limitations
+
+- Simulations cannot capture all complexities of real data
+- Some scenarios may have limited practical relevance
+- Treatment switching scenarios not included in primary analysis
+
+## Conclusion
+
+This protocol outlines a comprehensive simulation study to evaluate novel MAIC weighting methods. Results will inform method selection guidelines for practitioners and identify directions for further methodological development.
+
+# References
+
+<div id="refs"></div>
+
+\newpage
+
+# Appendix: Detailed Scenario Specifications
+
+```{r full-scenarios, results='asis'}
+# Generate scenario grid
+scenarios <- expand.grid(
+  n_AB = c(100, 300, 500),
+  n_covariates = c(3, 6),
+  population_overlap = c("high", "medium", "low"),
+  effect_modifiers = c("none", "one", "two"),
+  stringsAsFactors = FALSE
+)
+scenarios$scenario_id <- paste0("S", sprintf("%02d", 1:nrow(scenarios)))
+
+kable(scenarios,
+      caption = "Complete list of simulation scenarios",
+      booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "hold_position", "scale_down"))
+```

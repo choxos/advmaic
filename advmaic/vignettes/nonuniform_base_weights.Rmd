@@ -1,0 +1,157 @@
+---
+title: "Non-Uniform Base Weights in MAIC"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Non-Uniform Base Weights in MAIC}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+```{r setup}
+library(advmaic)
+library(dplyr)
+```
+
+## Background
+
+Standard MAIC uses uniform base weights (1/n for each patient). Phillippo et al. (2020) demonstrated that entropy balancing can incorporate non-uniform base weights, enabling combination of MAIC with other adjustment methods.
+
+The entropy balancing objective with non-uniform base weights is:
+
+$$
+H_{EB}(\alpha) = \log\left(\sum_i w_i^{(0)} \exp(x_i^T \alpha)\right)
+$$
+
+where $w_i^{(0)}$ are the base weights.
+
+## Applications
+
+### 1. MAIC + Nonparametric Covariate Adjustment (NPCA)
+
+NPCA (Williamson et al. 2014) uses inverse probability treatment weighting within a trial to balance prognostic covariates between treatment arms, achieving variance reduction similar to ANCOVA but nonparametrically.
+
+```{r npca-example}
+# Simulate data
+set.seed(456)
+n <- 400
+
+ipd <- data.frame(
+  age = rnorm(n, 55, 10),
+  male = rbinom(n, 1, 0.6),
+  biomarker = rnorm(n, 100, 20),
+  ecog = sample(0:2, n, replace = TRUE, prob = c(0.5, 0.3, 0.2)),
+  treatment = rep(c(0, 1), each = n/2),
+  outcome = rnorm(n, 0, 1)
+)
+
+# Make outcome depend on covariates and treatment
+ipd$outcome <- with(ipd,
+  -0.5 * treatment +          # Treatment effect
+  0.02 * age +                # Prognostic
+  0.5 * male +                # Prognostic
+  0.01 * biomarker +          # Prognostic
+  0.3 * ecog +                # Strong prognostic
+  rnorm(n, 0, 1)
+)
+
+# AgD target (population difference in age and biomarker)
+agd_target <- c(age = 60, male = 0.5, biomarker = 110)
+
+# Standard MAIC (for comparison)
+weights_standard <- estimate_weights(
+  ipd = ipd,
+  agd_target = agd_target,
+  covariates = c("age", "male", "biomarker")
+)
+
+cat("Standard MAIC ESS:", round(weights_standard$ess, 1), "\n")
+
+# MAIC + NPCA
+# Use ECOG as efficiency covariate (strong prognostic, not in AgD)
+weights_npca <- maic_with_npca(
+  ipd = ipd,
+  agd_target = agd_target,
+  population_covariates = c("age", "male", "biomarker"),
+  efficiency_covariates = c("ecog"),
+  treatment_var = "treatment"
+)
+
+cat("MAIC + NPCA ESS:", round(weights_npca$ess, 1), "\n")
+```
+
+The NPCA base weights help balance the strong prognostic variable (ECOG) between treatment arms, potentially reducing variance in the treatment effect estimate.
+
+### 2. MAIC + IPCW for Treatment Switching
+
+When patients in the control arm switch to receive active treatment (e.g., after disease progression), the ITT treatment effect is biased. IPCW can correct for switching by upweighting non-switchers.
+
+```{r ipcw-conceptual, eval=FALSE}
+# Conceptual example (requires time-to-event data with switching)
+weights_ipcw <- maic_with_treatment_switching(
+  ipd = ipd_tte,
+  agd_target = agd_target,
+  covariates = c("age", "male", "biomarker"),
+  time_var = "time",
+  event_var = "event",
+  switch_var = "switched",
+  switch_covariates = c("age", "biomarker")
+)
+```
+
+This allows:
+- Adjustment for treatment switching (via IPCW)
+- Adjustment for population differences (via MAIC)
+- Preservation of randomization in anchored comparisons
+
+### 3. Custom Base Weights
+
+You can provide any base weights to `estimate_weights()`:
+
+```{r custom-base}
+# Example: upweight patients with certain characteristics
+custom_base_weights <- ifelse(ipd$ecog == 0, 2, 1)
+custom_base_weights <- custom_base_weights / sum(custom_base_weights)
+
+weights_custom <- estimate_weights(
+  ipd = ipd,
+  agd_target = agd_target,
+  covariates = c("age", "male", "biomarker"),
+  base_weights = custom_base_weights
+)
+
+cat("Custom base weights ESS:", round(weights_custom$ess, 1), "\n")
+```
+
+## Mathematical Details
+
+For entropy balancing with non-uniform base weights $w^{(0)}$:
+
+**Primal problem:**
+$$
+\min_w \sum_i w_i \log\left(\frac{w_i}{w_i^{(0)}}\right)
+$$
+subject to $\sum_i w_i x_{ik} = \bar{x}_k^{AC}$ for all $k$
+
+**Dual problem:**
+$$
+\min_\alpha \log\left(\sum_i w_i^{(0)} \exp(x_i^T \alpha)\right)
+$$
+
+**Solution:**
+$$
+w_i = \frac{w_i^{(0)} \exp(x_i^T \hat{\alpha})}{\sum_j w_j^{(0)} \exp(x_j^T \hat{\alpha})}
+$$
+
+## References
+
+- Phillippo DM, et al. (2020). Equivalence of entropy balancing and the method of moments for matching-adjusted indirect comparison. *Research Synthesis Methods*.
+- Williamson EJ, et al. (2014). Variance reduction in randomised trials by inverse probability weighting using the propensity score. *Statistics in Medicine*.

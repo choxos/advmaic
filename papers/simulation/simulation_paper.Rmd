@@ -1,0 +1,275 @@
+---
+title: "Alternative Weighting Approaches for Matching-Adjusted Indirect Comparisons: A Simulation Study"
+author:
+  - name: Ahmad Sofi-Mahmudi
+    affiliation: "1"
+    email: a.sofimahmudi@gmail.com
+    corresponding: true
+affiliation:
+  - id: "1"
+    institution: ""
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_document2:
+    toc: false
+    number_sections: true
+    keep_tex: true
+bibliography: references.bib
+csl: research-synthesis-methods.csl
+abstract: |
+  **Background**: Matching-adjusted indirect comparisons (MAIC) are widely used when direct head-to-head trials are unavailable. Recent work has established the equivalence between entropy balancing and method of moments approaches, enabling novel weighting strategies.
+
+  **Objectives**: To compare the performance of novel MAIC weighting methods—including non-uniform base weights, alternative loss functions, and arm-separate schemes—with standard approaches.
+
+  **Methods**: We conducted a simulation study comparing 11 weighting methods across 54 scenarios varying sample size (n=100-500), population overlap, number of covariates (3-6), and effect modification. We evaluated bias, root mean squared error (RMSE), 95% CI coverage, and effective sample size (ESS) over 1,000 iterations per scenario.
+
+  **Results**: [Results to be added after simulation]
+
+  **Conclusions**: [Conclusions to be added after analysis]
+
+keywords: "matching-adjusted indirect comparison, entropy balancing, population adjustment, simulation study, health technology assessment"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 8,
+  fig.height = 6,
+  out.width = "100%"
+)
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+
+# Load results (when available)
+results_file <- here::here("advmaic/inst/simulation/results/performance_metrics.rds")
+if (file.exists(results_file)) {
+  metrics <- readRDS(results_file)
+}
+```
+
+# Introduction
+
+Matching-adjusted indirect comparisons (MAIC) have become an essential methodology for health technology assessment when direct comparative evidence is unavailable [@signorovitch2010; @signorovitch2012]. By reweighting individual patient data (IPD) from an index trial to match the covariate distribution reported in aggregate data (AgD) from a comparator trial, MAIC enables population-adjusted indirect treatment comparisons that account for cross-trial differences in effect modifiers.
+
+The theoretical foundations of MAIC were recently strengthened by Phillippo et al. [-@phillippo2020], who demonstrated the mathematical equivalence between the method of moments (traditional MAIC) and entropy balancing approaches. This equivalence, expressed through the dual optimization problem, opens several novel research directions:
+
+1. **Non-uniform base weights**: Using pre-specified weights rather than uniform weights as the starting point for entropy balancing enables combination with other adjustment methods, such as inverse probability of censoring weighting (IPCW) for treatment switching or nonparametric covariate adjustment (NPCA) for variance reduction [@williamson2014].
+
+2. **Alternative loss functions**: The Cressie-Read divergence family provides a spectrum of loss functions beyond standard entropy, including empirical likelihood (γ=-1) which may offer improved inferential properties [@owen2001].
+
+3. **Arm-separate weighting**: Rather than matching the total IPD population to total AgD, covariates can be matched separately for treatment and control arms when arm-specific AgD is available [@petto2019].
+
+Petto et al. [-@petto2019] conducted an initial simulation study comparing alternative weighting approaches, demonstrating potential benefits of arm-separate methods (EbArm, EbArmILD) under certain conditions. However, the novel directions suggested by Phillippo et al. [-@phillippo2020]—particularly combining MAIC with variance reduction or treatment switching adjustment—have not been systematically evaluated.
+
+In this paper, we present a comprehensive simulation study comparing 11 weighting methods across 54 scenarios to evaluate these novel approaches and provide practical guidance for method selection.
+
+# Methods
+
+## Weighting Methods Compared
+
+We evaluated the following methods:
+
+### Standard Methods
+
+- **Bucher (unadjusted)**: Standard indirect comparison without population adjustment, serving as a reference.
+- **SigTotal**: Standard MAIC using method of moments with uniform weights.
+- **SigTotalVar**: SigTotal extended to match both covariate means and variances.
+- **SigArm/EbArm**: Arm-separate weighting matching treatment and control arms separately.
+
+### Novel Methods
+
+- **EbArmILD**: Arm-separate weighting with additional balancing of IPD-only covariates between arms within the index trial.
+- **EbNPCA**: Entropy balancing with NPCA base weights (inverse probability treatment weights), potentially reducing variance through prognostic covariate balance.
+- **EbEL**: Empirical likelihood loss function (Cressie-Read γ=-1).
+- **EbCR0.5/EbCR1**: Alternative Cressie-Read divergences (γ=0.5, γ=1).
+
+## Data Generation
+
+We generated two-trial scenarios following the design of Petto et al. [-@petto2019]:
+
+- **AB trial (index)**: $n_{AB}$ patients randomized to treatments A or B
+- **AC trial (comparator)**: Aggregate summary statistics from $n_{AC}=500$ patients randomized to A or C
+
+Covariates were generated as:
+$$X_k \sim N(\mu_k, 1)$$
+
+with population shifts $\delta_k$ between trials to create varying overlap.
+
+Outcomes were generated from logistic models:
+$$\text{logit}(P(Y=1)) = \alpha + \sum_k \beta_k X_k + \tau T + \sum_{k \in EM} \gamma_k X_k T$$
+
+where $\tau_{AB}=-0.5$ and $\tau_{AC}=-0.7$ (log odds ratios), giving true indirect comparison effect $\theta_{BC}=0.2$.
+
+## Scenarios
+
+We varied:
+
+- **IPD sample size**: $n_{AB} \in \{100, 300, 500\}$
+- **Number of covariates**: $p \in \{3, 6\}$
+- **Population overlap**: High ($\delta=0.2$), Medium ($\delta=0.5$), Low ($\delta=1.0$)
+- **Effect modifiers**: 0, 1, or 2 covariates
+
+This yielded 54 primary scenarios with 1,000 iterations each.
+
+## Performance Metrics
+
+1. **Bias**: $E[\hat{\theta}] - \theta^{true}$
+2. **Root Mean Squared Error**: $\sqrt{E[(\hat{\theta} - \theta^{true})^2]}$
+3. **95% CI Coverage**: Proportion of intervals containing true value
+4. **Effective Sample Size**: $ESS = (\sum w_i)^2 / \sum w_i^2$
+
+## Statistical Analysis
+
+Performance metrics were calculated for each scenario-method combination with Monte Carlo standard errors. Methods were ranked by RMSE within scenarios, and summary statistics computed across scenarios.
+
+All analyses were conducted in R using the `advmaic` package (version 0.1.0).
+
+# Results
+
+## Overall Performance
+
+```{r main-results, eval=exists("metrics")}
+if (exists("metrics")) {
+  summary_table <- metrics %>%
+    group_by(method) %>%
+    summarise(
+      `Mean Bias` = round(mean(bias, na.rm = TRUE), 3),
+      `Mean RMSE` = round(mean(rmse, na.rm = TRUE), 3),
+      `Mean Coverage (%)` = round(mean(coverage_pct, na.rm = TRUE), 1),
+      `Mean ESS` = round(mean(ess_mean, na.rm = TRUE), 1),
+      .groups = "drop"
+    ) %>%
+    arrange(`Mean RMSE`)
+
+  kable(summary_table,
+        caption = "Summary of performance metrics across all scenarios",
+        booktabs = TRUE) %>%
+    kable_styling(latex_options = c("striped", "hold_position"))
+}
+```
+
+[Results text to be added based on simulation output]
+
+## Performance by Population Overlap
+
+```{r results-by-overlap, eval=exists("metrics"), fig.cap="RMSE by population overlap level"}
+if (exists("metrics")) {
+  ggplot(metrics, aes(x = method, y = rmse, fill = population_overlap)) +
+    geom_boxplot(alpha = 0.7) +
+    coord_flip() +
+    labs(x = "Method", y = "RMSE", fill = "Overlap") +
+    theme_minimal()
+}
+```
+
+## Performance by Sample Size
+
+```{r results-by-n, eval=exists("metrics"), fig.cap="RMSE by IPD sample size"}
+if (exists("metrics")) {
+  ggplot(metrics, aes(x = method, y = rmse, fill = factor(n_AB))) +
+    geom_boxplot(alpha = 0.7) +
+    coord_flip() +
+    labs(x = "Method", y = "RMSE", fill = "n (IPD)") +
+    theme_minimal()
+}
+```
+
+## Bias-ESS Tradeoff
+
+```{r bias-ess, eval=exists("metrics"), fig.cap="Bias-ESS tradeoff by method"}
+if (exists("metrics")) {
+  tradeoff <- metrics %>%
+    group_by(method) %>%
+    summarise(
+      mean_abs_bias = mean(abs(bias), na.rm = TRUE),
+      mean_ess = mean(ess_mean, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  ggplot(tradeoff, aes(x = mean_ess, y = mean_abs_bias, label = method)) +
+    geom_point(size = 4, color = "steelblue") +
+    geom_text(hjust = -0.1, vjust = 0.5, size = 3) +
+    labs(x = "Mean Effective Sample Size",
+         y = "Mean Absolute Bias") +
+    theme_minimal() +
+    expand_limits(x = c(0, max(tradeoff$mean_ess) * 1.3))
+}
+```
+
+## Coverage Probability
+
+```{r coverage, eval=exists("metrics"), fig.cap="95% CI coverage probability by method"}
+if (exists("metrics")) {
+  ggplot(metrics, aes(x = method, y = coverage_pct, fill = method)) +
+    geom_boxplot(alpha = 0.7) +
+    geom_hline(yintercept = 95, linetype = "dashed", color = "red") +
+    coord_flip() +
+    labs(x = "Method", y = "Coverage (%)", fill = "Method") +
+    theme_minimal() +
+    theme(legend.position = "none") +
+    scale_y_continuous(limits = c(80, 100))
+}
+```
+
+# Discussion
+
+## Main Findings
+
+[To be completed after simulation]
+
+## Comparison with Previous Studies
+
+Our findings extend the work of Petto et al. [-@petto2019] by evaluating additional novel methods suggested by Phillippo et al. [-@phillippo2020].
+
+## Practical Recommendations
+
+Based on our findings, we recommend:
+
+1. [Recommendations to be added]
+
+## Limitations
+
+- Simulation scenarios cannot capture all complexities of real data
+- Binary outcomes only in primary analysis
+- Fixed comparator trial sample size
+
+## Conclusions
+
+[To be completed after analysis]
+
+# Data Availability
+
+The `advmaic` R package implementing all methods, simulation code, and full results are available at https://github.com/choxos/advmaic.
+
+# References
+
+<div id="refs"></div>
+
+\newpage
+
+# Supplementary Material
+
+## Full Results Tables
+
+```{r supp-tables, eval=exists("metrics")}
+if (exists("metrics")) {
+  # Detailed table by scenario
+  kable(metrics %>%
+          select(scenario_id, method, bias, rmse, coverage_pct, ess_mean) %>%
+          head(50),
+        caption = "Detailed results (first 50 rows)",
+        booktabs = TRUE,
+        digits = 3) %>%
+    kable_styling(latex_options = c("striped", "scale_down"))
+}
+```
+
+## Method Comparison Statistics
+
+[Additional tables to be added]
