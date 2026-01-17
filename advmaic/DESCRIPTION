@@ -1,0 +1,40 @@
+Package: advmaic
+Title: Advanced Matching-Adjusted Indirect Comparison Methods
+Version: 0.1.0
+Authors@R:
+    person("Ahmad", "Sofi-Mahmudi", email = "a.sofimahmudi@gmail.com", role = c("aut", "cre"))
+Description: Implements novel weighting approaches for Matching-Adjusted Indirect
+    Comparisons (MAIC) including entropy balancing with non-uniform base weights,
+    alternative loss functions from the Cressie-Read divergence family, arm-separate
+    weighting schemes, and combined adjustment methods for treatment switching and
+    variance reduction. Based on methodological developments from Phillippo et al. (2020),
+    Petto et al. (2019), Williamson et al. (2013), and Hainmueller (2012).
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.0
+Depends:
+    R (>= 4.0.0)
+Imports:
+    stats,
+    nloptr,
+    boot,
+    sandwich,
+    survival,
+    ggplot2,
+    dplyr,
+    tidyr,
+    tibble,
+    rlang,
+    cli,
+    matrixStats
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    pkgdown,
+    covr
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+URL: https://github.com/choxos/advmaic
+BugReports: https://github.com/choxos/advmaic/issues
