@@ -1,0 +1,431 @@
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading package functions...
+Loading simulation code...
+
+========================================
+FULL SIMULATION STUDY
+========================================
+
+Total scenarios: 54 
+Methods: 5 
+Iterations per scenario-method: 1000 
+Total runs: 270000 
+Using 7 cores
+
+
+[16:02:59] Scenario 1/54: S001 (n=100, p=3, overlap=high, EM=none)
+  Bucher: done (100% success, bias=-0.017)
+  SigTotal: done (100% success, bias=-0.018)
+  EbTotal: done (100% success, bias=-0.018)
+  EbArm: done (100% success, bias=-0.021)
+  EbEL: done (100% success, bias=-0.017)
+
+[16:03:06] Scenario 2/54: S002 (n=300, p=3, overlap=high, EM=none)
+  Bucher: done (100% success, bias=-0.013)
+  SigTotal: done (100% success, bias=-0.013)
+  EbTotal: done (100% success, bias=-0.013)
+  EbArm: done (100% success, bias=-0.012)
+  EbEL: done (100% success, bias=-0.012)
+
+[16:03:14] Scenario 3/54: S003 (n=500, p=3, overlap=high, EM=none)
+  Bucher: done (100% success, bias=-0.013)
+  SigTotal: done (100% success, bias=-0.014)
+  EbTotal: done (100% success, bias=-0.014)
+  EbArm: done (100% success, bias=-0.019)
+  EbEL: done (100% success, bias=-0.013)
+
+[16:03:23] Scenario 4/54: S004 (n=100, p=3, overlap=medium, EM=none)
+  Bucher: done (100% success, bias=-0.012)
+  SigTotal: done (100% success, bias=-0.016)
+  EbTotal: done (100% success, bias=-0.016)
+  EbArm: done (100% success, bias=-0.026)
+  EbEL: done (100% success, bias=-0.009)
+
+[16:03:30] Scenario 5/54: S005 (n=300, p=3, overlap=medium, EM=none)
+  Bucher: done (100% success, bias=-0.013)
+  SigTotal: done (100% success, bias=-0.015)
+  EbTotal: done (100% success, bias=-0.015)
+  EbArm: done (100% success, bias=-0.014)
+  EbEL: done (100% success, bias=-0.013)
+
+[16:03:38] Scenario 6/54: S006 (n=500, p=3, overlap=medium, EM=none)
+  Bucher: done (100% success, bias=0.000)
+  SigTotal: done (100% success, bias=-0.004)
+  EbTotal: done (100% success, bias=-0.004)
+  EbArm: done (100% success, bias=-0.002)
+  EbEL: done (100% success, bias=0.001)
+
+[16:03:47] Scenario 7/54: S007 (n=100, p=3, overlap=low, EM=none)
+  Bucher: done (100% success, bias=-0.003)
+  SigTotal: done (100% success, bias=-0.028)
+  EbTotal: done (100% success, bias=-0.028)
+  EbArm: done (100% success, bias=-0.159)
+  EbEL: done (100% success, bias=-0.035)
+
+[16:03:56] Scenario 8/54: S008 (n=300, p=3, overlap=low, EM=none)
+  Bucher: done (100% success, bias=-0.001)
+  SigTotal: done (100% success, bias=-0.012)
+  EbTotal: done (100% success, bias=-0.012)
+  EbArm: done (100% success, bias=-0.013)
+  EbEL: done (100% success, bias=-0.003)
+
+[16:04:05] Scenario 9/54: S009 (n=500, p=3, overlap=low, EM=none)
+  Bucher: done (100% success, bias=-0.016)
+  SigTotal: done (100% success, bias=-0.039)
+  EbTotal: done (100% success, bias=-0.039)
+  EbArm: done (100% success, bias=-0.036)
+  EbEL: done (100% success, bias=-0.046)
+
+[16:04:14] Scenario 10/54: S010 (n=100, p=6, overlap=high, EM=none)
+  Bucher: done (100% success, bias=-0.061)
+  SigTotal: done (100% success, bias=-0.073)
+  EbTotal: done (100% success, bias=-0.073)
+  EbArm: done (100% success, bias=-0.072)
+  EbEL: done (100% success, bias=-0.072)
+  [Checkpoint saved: 10 scenarios]
+
+[16:04:22] Scenario 11/54: S011 (n=300, p=6, overlap=high, EM=none)
+  Bucher: done (100% success, bias=-0.020)
+  SigTotal: done (100% success, bias=-0.023)
+  EbTotal: done (100% success, bias=-0.023)
+  EbArm: done (100% success, bias=-0.020)
+  EbEL: done (100% success, bias=-0.022)
+
+[16:04:31] Scenario 12/54: S012 (n=500, p=6, overlap=high, EM=none)
+  Bucher: done (100% success, bias=-0.009)
+  SigTotal: done (100% success, bias=-0.008)
+  EbTotal: done (100% success, bias=-0.008)
+  EbArm: done (100% success, bias=-0.011)
+  EbEL: done (100% success, bias=-0.006)
+
+[16:04:41] Scenario 13/54: S013 (n=100, p=6, overlap=medium, EM=none)
+  Bucher: done (100% success, bias=-0.040)
+  SigTotal: done (100% success, bias=-0.037)
+  EbTotal: done (100% success, bias=-0.037)
+  EbArm: done (100% success, bias=-0.020)
+  EbEL: done (100% success, bias=-0.035)
+
+[16:04:50] Scenario 14/54: S014 (n=300, p=6, overlap=medium, EM=none)
+  Bucher: done (100% success, bias=-0.027)
+  SigTotal: done (100% success, bias=-0.026)
+  EbTotal: done (100% success, bias=-0.026)
+  EbArm: done (100% success, bias=-0.026)
+  EbEL: done (100% success, bias=-0.015)
+
+[16:04:59] Scenario 15/54: S015 (n=500, p=6, overlap=medium, EM=none)
+  Bucher: done (100% success, bias=-0.019)
+  SigTotal: done (100% success, bias=-0.023)
+  EbTotal: done (100% success, bias=-0.023)
+  EbArm: done (100% success, bias=-0.020)
+  EbEL: done (100% success, bias=-0.024)
+
+[16:05:10] Scenario 16/54: S016 (n=100, p=6, overlap=low, EM=none)
+  Bucher: done (100% success, bias=0.007)
+  SigTotal: done (100% success, bias=-0.029)
+  EbTotal: done (100% success, bias=-0.029)
+  EbArm: done (100% success, bias=-0.174)
+  EbEL: done (100% success, bias=-0.059)
+
+[16:05:32] Scenario 17/54: S017 (n=300, p=6, overlap=low, EM=none)
+  Bucher: done (100% success, bias=-0.023)
+  SigTotal: done (100% success, bias=-0.030)
+  EbTotal: done (100% success, bias=-0.030)
+  EbArm: done (100% success, bias=-0.029)
+  EbEL: done (100% success, bias=-0.033)
+
+[16:05:42] Scenario 18/54: S018 (n=500, p=6, overlap=low, EM=none)
+  Bucher: done (100% success, bias=-0.023)
+  SigTotal: done (100% success, bias=-0.035)
+  EbTotal: done (100% success, bias=-0.035)
+  EbArm: done (100% success, bias=-0.035)
+  EbEL: done (100% success, bias=-0.005)
+
+[16:05:56] Scenario 19/54: S019 (n=100, p=3, overlap=high, EM=one)
+  Bucher: done (100% success, bias=-0.073)
+  SigTotal: done (100% success, bias=-0.029)
+  EbTotal: done (100% success, bias=-0.029)
+  EbArm: done (100% success, bias=-0.028)
+  EbEL: done (100% success, bias=-0.028)
+
+[16:06:04] Scenario 20/54: S020 (n=300, p=3, overlap=high, EM=one)
+  Bucher: done (100% success, bias=-0.095)
+  SigTotal: done (100% success, bias=-0.048)
+  EbTotal: done (100% success, bias=-0.048)
+  EbArm: done (100% success, bias=-0.047)
+  EbEL: done (100% success, bias=-0.046)
+  [Checkpoint saved: 20 scenarios]
+
+[16:06:15] Scenario 21/54: S021 (n=500, p=3, overlap=high, EM=one)
+  Bucher: done (100% success, bias=-0.071)
+  SigTotal: done (100% success, bias=-0.023)
+  EbTotal: done (100% success, bias=-0.023)
+  EbArm: done (100% success, bias=-0.023)
+  EbEL: done (100% success, bias=-0.022)
+
+[16:06:26] Scenario 22/54: S022 (n=100, p=3, overlap=medium, EM=one)
+  Bucher: done (100% success, bias=-0.175)
+  SigTotal: done (100% success, bias=-0.058)
+  EbTotal: done (100% success, bias=-0.058)
+  EbArm: done (100% success, bias=-0.068)
+  EbEL: done (100% success, bias=-0.058)
+
+[16:06:35] Scenario 23/54: S023 (n=300, p=3, overlap=medium, EM=one)
+  Bucher: done (100% success, bias=-0.148)
+  SigTotal: done (100% success, bias=-0.021)
+  EbTotal: done (100% success, bias=-0.021)
+  EbArm: done (100% success, bias=-0.022)
+  EbEL: done (100% success, bias=-0.023)
+
+[16:06:44] Scenario 24/54: S024 (n=500, p=3, overlap=medium, EM=one)
+  Bucher: done (100% success, bias=-0.138)
+  SigTotal: done (100% success, bias=-0.017)
+  EbTotal: done (100% success, bias=-0.017)
+  EbArm: done (100% success, bias=-0.015)
+  EbEL: done (100% success, bias=-0.022)
+
+[16:06:55] Scenario 25/54: S025 (n=100, p=3, overlap=low, EM=one)
+  Bucher: done (100% success, bias=-0.273)
+  SigTotal: done (100% success, bias=-0.025)
+  EbTotal: done (100% success, bias=-0.025)
+  EbArm: done (100% success, bias=-0.080)
+  EbEL: done (100% success, bias=-0.040)
+
+[16:07:06] Scenario 26/54: S026 (n=300, p=3, overlap=low, EM=one)
+  Bucher: done (100% success, bias=-0.263)
+  SigTotal: done (100% success, bias=-0.034)
+  EbTotal: done (100% success, bias=-0.034)
+  EbArm: done (100% success, bias=-0.018)
+  EbEL: done (100% success, bias=-0.077)
+
+[16:07:16] Scenario 27/54: S027 (n=500, p=3, overlap=low, EM=one)
+  Bucher: done (100% success, bias=-0.276)
+  SigTotal: done (100% success, bias=-0.036)
+  EbTotal: done (100% success, bias=-0.036)
+  EbArm: done (100% success, bias=-0.032)
+  EbEL: done (100% success, bias=-0.065)
+
+[16:07:27] Scenario 28/54: S028 (n=100, p=6, overlap=high, EM=one)
+  Bucher: done (100% success, bias=-0.079)
+  SigTotal: done (100% success, bias=-0.033)
+  EbTotal: done (100% success, bias=-0.033)
+  EbArm: done (100% success, bias=-0.038)
+  EbEL: done (100% success, bias=-0.034)
+
+[16:07:37] Scenario 29/54: S029 (n=300, p=6, overlap=high, EM=one)
+  Bucher: done (100% success, bias=-0.095)
+  SigTotal: done (100% success, bias=-0.043)
+  EbTotal: done (100% success, bias=-0.043)
+  EbArm: done (100% success, bias=-0.047)
+  EbEL: done (100% success, bias=-0.040)
+
+[16:07:47] Scenario 30/54: S030 (n=500, p=6, overlap=high, EM=one)
+  Bucher: done (100% success, bias=-0.066)
+  SigTotal: done (100% success, bias=-0.021)
+  EbTotal: done (100% success, bias=-0.021)
+  EbArm: done (100% success, bias=-0.019)
+  EbEL: done (100% success, bias=-0.021)
+  [Checkpoint saved: 30 scenarios]
+
+[16:08:00] Scenario 31/54: S031 (n=100, p=6, overlap=medium, EM=one)
+  Bucher: done (100% success, bias=-0.146)
+  SigTotal: done (100% success, bias=-0.033)
+  EbTotal: done (100% success, bias=-0.033)
+  EbArm: done (100% success, bias=-0.033)
+  EbEL: done (100% success, bias=-0.028)
+
+[16:08:09] Scenario 32/54: S032 (n=300, p=6, overlap=medium, EM=one)
+  Bucher: done (100% success, bias=-0.168)
+  SigTotal: done (100% success, bias=-0.062)
+  EbTotal: done (100% success, bias=-0.062)
+  EbArm: done (100% success, bias=-0.057)
+  EbEL: done (100% success, bias=-0.061)
+
+[16:08:20] Scenario 33/54: S033 (n=500, p=6, overlap=medium, EM=one)
+  Bucher: done (100% success, bias=-0.153)
+  SigTotal: done (100% success, bias=-0.038)
+  EbTotal: done (100% success, bias=-0.038)
+  EbArm: done (100% success, bias=-0.039)
+  EbEL: done (100% success, bias=-0.039)
+
+[16:08:33] Scenario 34/54: S034 (n=100, p=6, overlap=low, EM=one)
+  Bucher: done (100% success, bias=-0.268)
+  SigTotal: done (100% success, bias=-0.051)
+  EbTotal: done (100% success, bias=-0.051)
+  EbArm: done (100% success, bias=-0.499)
+  EbEL: done (100% success, bias=-0.090)
+
+[16:08:55] Scenario 35/54: S035 (n=300, p=6, overlap=low, EM=one)
+  Bucher: done (100% success, bias=-0.254)
+  SigTotal: done (100% success, bias=-0.020)
+  EbTotal: done (100% success, bias=-0.020)
+  EbArm: done (100% success, bias=-0.014)
+  EbEL: done (100% success, bias=-0.048)
+
+[16:09:06] Scenario 36/54: S036 (n=500, p=6, overlap=low, EM=one)
+  Bucher: done (100% success, bias=-0.260)
+  SigTotal: done (100% success, bias=-0.029)
+  EbTotal: done (100% success, bias=-0.029)
+  EbArm: done (100% success, bias=-0.034)
+  EbEL: done (100% success, bias=-0.045)
+
+[16:09:20] Scenario 37/54: S037 (n=100, p=3, overlap=high, EM=two)
+  Bucher: done (100% success, bias=-0.107)
+  SigTotal: done (100% success, bias=-0.044)
+  EbTotal: done (100% success, bias=-0.044)
+  EbArm: done (100% success, bias=-0.039)
+  EbEL: done (100% success, bias=-0.042)
+
+[16:09:30] Scenario 38/54: S038 (n=300, p=3, overlap=high, EM=two)
+  Bucher: done (100% success, bias=-0.095)
+  SigTotal: done (100% success, bias=-0.036)
+  EbTotal: done (100% success, bias=-0.036)
+  EbArm: done (100% success, bias=-0.031)
+  EbEL: done (100% success, bias=-0.034)
+
+[16:09:40] Scenario 39/54: S039 (n=500, p=3, overlap=high, EM=two)
+  Bucher: done (100% success, bias=-0.082)
+  SigTotal: done (100% success, bias=-0.019)
+  EbTotal: done (100% success, bias=-0.019)
+  EbArm: done (100% success, bias=-0.022)
+  EbEL: done (100% success, bias=-0.017)
+
+[16:09:52] Scenario 40/54: S040 (n=100, p=3, overlap=medium, EM=two)
+  Bucher: done (100% success, bias=-0.189)
+  SigTotal: done (100% success, bias=-0.036)
+  EbTotal: done (100% success, bias=-0.036)
+  EbArm: done (100% success, bias=-0.036)
+  EbEL: done (100% success, bias=-0.026)
+  [Checkpoint saved: 40 scenarios]
+
+[16:10:02] Scenario 41/54: S041 (n=300, p=3, overlap=medium, EM=two)
+  Bucher: done (100% success, bias=-0.184)
+  SigTotal: done (100% success, bias=-0.031)
+  EbTotal: done (100% success, bias=-0.031)
+  EbArm: done (100% success, bias=-0.036)
+  EbEL: done (100% success, bias=-0.037)
+
+[16:10:09] Scenario 42/54: S042 (n=500, p=3, overlap=medium, EM=two)
+  Bucher: done (100% success, bias=-0.182)
+  SigTotal: done (100% success, bias=-0.027)
+  EbTotal: done (100% success, bias=-0.027)
+  EbArm: done (100% success, bias=-0.027)
+  EbEL: done (100% success, bias=-0.034)
+
+[16:10:16] Scenario 43/54: S043 (n=100, p=3, overlap=low, EM=two)
+  Bucher: done (100% success, bias=-0.360)
+  SigTotal: done (100% success, bias=-0.047)
+  EbTotal: done (100% success, bias=-0.047)
+  EbArm: done (100% success, bias=-0.089)
+  EbEL: done (100% success, bias=-0.080)
+
+[16:10:24] Scenario 44/54: S044 (n=300, p=3, overlap=low, EM=two)
+  Bucher: done (100% success, bias=-0.331)
+  SigTotal: done (100% success, bias=-0.021)
+  EbTotal: done (100% success, bias=-0.021)
+  EbArm: done (100% success, bias=-0.015)
+  EbEL: done (100% success, bias=-0.063)
+
+[16:10:30] Scenario 45/54: S045 (n=500, p=3, overlap=low, EM=two)
+  Bucher: done (100% success, bias=-0.326)
+  SigTotal: done (100% success, bias=-0.012)
+  EbTotal: done (100% success, bias=-0.012)
+  EbArm: done (100% success, bias=-0.014)
+  EbEL: done (100% success, bias=-0.067)
+
+[16:10:38] Scenario 46/54: S046 (n=100, p=6, overlap=high, EM=two)
+  Bucher: done (100% success, bias=-0.097)
+  SigTotal: done (100% success, bias=-0.034)
+  EbTotal: done (100% success, bias=-0.034)
+  EbArm: done (100% success, bias=-0.027)
+  EbEL: done (100% success, bias=-0.034)
+
+[16:10:44] Scenario 47/54: S047 (n=300, p=6, overlap=high, EM=two)
+  Bucher: done (100% success, bias=-0.098)
+  SigTotal: done (100% success, bias=-0.043)
+  EbTotal: done (100% success, bias=-0.043)
+  EbArm: done (100% success, bias=-0.043)
+  EbEL: done (100% success, bias=-0.043)
+
+[16:10:51] Scenario 48/54: S048 (n=500, p=6, overlap=high, EM=two)
+  Bucher: done (100% success, bias=-0.087)
+  SigTotal: done (100% success, bias=-0.028)
+  EbTotal: done (100% success, bias=-0.028)
+  EbArm: done (100% success, bias=-0.029)
+  EbEL: done (100% success, bias=-0.027)
+
+[16:10:59] Scenario 49/54: S049 (n=100, p=6, overlap=medium, EM=two)
+  Bucher: done (100% success, bias=-0.198)
+  SigTotal: done (100% success, bias=-0.057)
+  EbTotal: done (100% success, bias=-0.057)
+  EbArm: done (100% success, bias=-0.038)
+  EbEL: done (100% success, bias=-0.060)
+
+[16:11:06] Scenario 50/54: S050 (n=300, p=6, overlap=medium, EM=two)
+  Bucher: done (100% success, bias=-0.176)
+  SigTotal: done (100% success, bias=-0.021)
+  EbTotal: done (100% success, bias=-0.021)
+  EbArm: done (100% success, bias=-0.023)
+  EbEL: done (100% success, bias=-0.024)
+  [Checkpoint saved: 50 scenarios]
+
+[16:11:14] Scenario 51/54: S051 (n=500, p=6, overlap=medium, EM=two)
+  Bucher: done (100% success, bias=-0.193)
+  SigTotal: done (100% success, bias=-0.046)
+  EbTotal: done (100% success, bias=-0.046)
+  EbArm: done (100% success, bias=-0.040)
+  EbEL: done (100% success, bias=-0.040)
+
+[16:11:22] Scenario 52/54: S052 (n=100, p=6, overlap=low, EM=two)
+  Bucher: done (100% success, bias=-0.353)
+  SigTotal: done (100% success, bias=-0.004)
+  EbTotal: done (100% success, bias=-0.004)
+  EbArm: done (100% success, bias=-0.140)
+  EbEL: done (100% success, bias=-0.016)
+
+[16:11:40] Scenario 53/54: S053 (n=300, p=6, overlap=low, EM=two)
+  Bucher: done (100% success, bias=-0.325)
+  SigTotal: done (100% success, bias=-0.024)
+  EbTotal: done (100% success, bias=-0.024)
+  EbArm: done (100% success, bias=-0.028)
+  EbEL: done (100% success, bias=-0.041)
+
+[16:11:47] Scenario 54/54: S054 (n=500, p=6, overlap=low, EM=two)
+  Bucher: done (100% success, bias=-0.333)
+  SigTotal: done (100% success, bias=-0.034)
+  EbTotal: done (100% success, bias=-0.034)
+  EbArm: done (100% success, bias=-0.034)
+  EbEL: done (100% success, bias=-0.077)
+
+
+========================================
+SIMULATION COMPLETE
+========================================
+Total time: 0.15 hours
+Results saved to: inst/simulation/results/simulation_results.rds
+
+
+Calculating performance metrics...
+
+========================================
+OVERALL RESULTS BY METHOD
+========================================
+
+   method Mean Bias Mean RMSE Mean Coverage Mean ESS Conv Rate
+   Bucher   -0.1299    0.3758         0.916    300.0     1.000
+  EbTotal   -0.0302    0.4364         0.943    191.6     1.000
+ SigTotal   -0.0302    0.4364         0.943    191.6     1.000
+     EbEL   -0.0364    0.5616         0.917    146.5     1.000
+    EbArm   -0.0469    1.0216         0.943    185.8     0.987
+
+
+All results saved to: inst/simulation/results 

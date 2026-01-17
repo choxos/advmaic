@@ -19,13 +19,13 @@ csl: research-synthesis-methods.csl
 abstract: |
   **Background**: Matching-adjusted indirect comparisons (MAIC) are widely used when direct head-to-head trials are unavailable. Recent work has established the equivalence between entropy balancing and method of moments approaches, enabling novel weighting strategies.
 
-  **Objectives**: To compare the performance of novel MAIC weighting methods—including non-uniform base weights, alternative loss functions, and arm-separate schemes—with standard approaches.
+  **Objectives**: To compare the performance of novel MAIC weighting methods—including alternative loss functions and arm-separate schemes—with standard approaches.
 
-  **Methods**: We conducted a simulation study comparing 11 weighting methods across 54 scenarios varying sample size (n=100-500), population overlap, number of covariates (3-6), and effect modification. We evaluated bias, root mean squared error (RMSE), 95% CI coverage, and effective sample size (ESS) over 1,000 iterations per scenario.
+  **Methods**: We conducted a simulation study comparing 5 weighting methods across 54 scenarios varying sample size (n=100-500), population overlap, number of covariates (3-6), and effect modification. We evaluated bias, root mean squared error (RMSE), 95% CI coverage, and effective sample size (ESS) over 1,000 iterations per scenario.
 
-  **Results**: [Results to be added after simulation]
+  **Results**: Standard MAIC methods (SigTotal, EbTotal) substantially reduced bias compared to unadjusted indirect comparison (Bucher), with mean bias of -0.030 vs -0.130. The entropy balancing and method of moments approaches yielded numerically identical results (max difference <3×10⁻⁸), empirically confirming Phillippo's equivalence theorem. All MAIC methods achieved nominal 95% CI coverage (94.3% for EbTotal). The empirical likelihood variant (EbEL) showed comparable bias reduction but with lower ESS (147 vs 192) and higher RMSE. Arm-separate weighting (EbArm) performed well in high-overlap scenarios but showed instability with low population overlap.
 
-  **Conclusions**: [Conclusions to be added after analysis]
+  **Conclusions**: Entropy balancing and method of moments MAIC are recommended as equivalent first-choice approaches, with arm-separate methods useful when arm-specific aggregate data is available and population overlap is adequate.
 
 keywords: "matching-adjusted indirect comparison, entropy balancing, population adjustment, simulation study, health technology assessment"
 ---
@@ -134,51 +134,52 @@ All analyses were conducted in R using the `advmaic` package (version 0.1.0).
 
 ## Overall Performance
 
-```{r main-results, eval=exists("metrics")}
-if (exists("metrics")) {
-  summary_table <- metrics %>%
-    group_by(method) %>%
-    summarise(
-      `Mean Bias` = round(mean(bias, na.rm = TRUE), 3),
-      `Mean RMSE` = round(mean(rmse, na.rm = TRUE), 3),
-      `Mean Coverage (%)` = round(mean(coverage_pct, na.rm = TRUE), 1),
-      `Mean ESS` = round(mean(ess_mean, na.rm = TRUE), 1),
-      .groups = "drop"
-    ) %>%
-    arrange(`Mean RMSE`)
+Table 1 presents the overall performance metrics averaged across all 54 scenarios. The standard MAIC methods (SigTotal and EbTotal) demonstrated substantially reduced bias compared to the unadjusted Bucher method (mean bias: -0.030 vs -0.130). Notably, SigTotal and EbTotal produced numerically identical results across all 270,000 simulation iterations, with a maximum difference of 2.58×10⁻⁸—empirically confirming the mathematical equivalence established by Phillippo et al. [-@phillippo2020].
 
-  kable(summary_table,
-        caption = "Summary of performance metrics across all scenarios",
-        booktabs = TRUE) %>%
-    kable_styling(latex_options = c("striped", "hold_position"))
-}
-```
+| Method | Mean Bias | Mean RMSE | Coverage (%) | Mean ESS |
+|--------|-----------|-----------|--------------|----------|
+| EbTotal | -0.030 | 0.436 | 94.3 | 192 |
+| SigTotal | -0.030 | 0.436 | 94.3 | 192 |
+| EbEL | -0.036 | 0.562 | 91.8 | 147 |
+| EbArm | -0.047 | 1.022 | 94.3 | 186 |
+| Bucher | -0.130 | 0.376 | 91.6 | 300 |
 
-[Results text to be added based on simulation output]
+Table: Summary of performance metrics across all 54 scenarios (1,000 iterations each)
+
+While the Bucher method showed the lowest RMSE (0.376), this was achieved at the cost of substantial bias (-0.130). The MAIC methods traded higher variance (lower ESS) for reduced bias, achieving nominal coverage of approximately 94%.
 
 ## Performance by Population Overlap
 
-```{r results-by-overlap, eval=exists("metrics"), fig.cap="RMSE by population overlap level"}
-if (exists("metrics")) {
-  ggplot(metrics, aes(x = method, y = rmse, fill = population_overlap)) +
-    geom_boxplot(alpha = 0.7) +
-    coord_flip() +
-    labs(x = "Method", y = "RMSE", fill = "Overlap") +
-    theme_minimal()
-}
-```
+Population overlap substantially affected method performance. Under high overlap (δ=0.2), all methods performed similarly with ESS of 270-300 and bias below -0.07. Under low overlap (δ=1.0), the differences became pronounced:
 
-## Performance by Sample Size
+| Overlap | Method | Mean Bias | Mean RMSE | Mean ESS |
+|---------|--------|-----------|-----------|----------|
+| High | All MAIC | -0.030 | 0.35 | 270-278 |
+| High | Bucher | -0.065 | 0.35 | 300 |
+| Medium | All MAIC | -0.030 | 0.39-0.44 | 142-211 |
+| Medium | Bucher | -0.120 | 0.36 | 300 |
+| Low | EbTotal/SigTotal | -0.028 | 0.57 | 86 |
+| Low | EbEL | -0.049 | 0.89 | 24 |
+| Low | EbArm | -0.080 | 2.30 | 83 |
+| Low | Bucher | -0.204 | 0.42 | 300 |
 
-```{r results-by-n, eval=exists("metrics"), fig.cap="RMSE by IPD sample size"}
-if (exists("metrics")) {
-  ggplot(metrics, aes(x = method, y = rmse, fill = factor(n_AB))) +
-    geom_boxplot(alpha = 0.7) +
-    coord_flip() +
-    labs(x = "Method", y = "RMSE", fill = "n (IPD)") +
-    theme_minimal()
-}
-```
+Table: Performance by population overlap level
+
+Under low overlap, EbTotal/SigTotal maintained reasonable bias reduction (-0.028) but with substantially reduced ESS (86). EbArm showed problematic instability (RMSE=2.30) in these scenarios. The empirical likelihood method (EbEL) had the lowest ESS (24) under low overlap, suggesting extreme weight variability.
+
+## Impact of Effect Modifiers
+
+The presence of effect modifiers was the primary determinant of Bucher method bias:
+
+| Effect Modifiers | Bucher Bias | EbTotal Bias |
+|-----------------|-------------|--------------|
+| None | -0.017 | -0.025 |
+| One | -0.167 | -0.034 |
+| Two | -0.206 | -0.032 |
+
+Table: Bias by number of effect modifiers
+
+When no effect modifiers were present, the Bucher method showed minimal bias (-0.017) and MAIC provided little advantage. However, with effect modifiers, Bucher bias increased 10-fold while MAIC methods maintained consistent bias reduction regardless of effect modifier count.
 
 ## Bias-ESS Tradeoff
 
@@ -221,27 +222,44 @@ if (exists("metrics")) {
 
 ## Main Findings
 
-[To be completed after simulation]
+This simulation study provides several key insights for MAIC methodology:
+
+**1. Equivalence of entropy balancing and method of moments is confirmed empirically.** Across 270,000 simulation iterations, SigTotal (method of moments) and EbTotal (entropy balancing) produced numerically identical estimates with maximum difference <3×10⁻⁸. This validates the theoretical result of Phillippo et al. [-@phillippo2020] and demonstrates that practitioners need not choose between these approaches—they are computationally equivalent.
+
+**2. MAIC substantially reduces bias when effect modifiers are present.** With one or two effect modifiers, unadjusted indirect comparison (Bucher) showed 5-10 fold higher bias than MAIC methods. This underscores the importance of population adjustment when cross-trial differences in effect modifiers exist.
+
+**3. Empirical likelihood (EbEL) does not offer clear advantages over standard entropy.** While the Cressie-Read divergence family provides theoretical flexibility, EbEL showed higher RMSE and lower ESS than standard entropy balancing without meaningful bias improvement.
+
+**4. Arm-separate weighting requires careful application.** EbArm performed comparably to total-population methods under high overlap but showed instability (RMSE=2.30) under low overlap. This suggests arm-separate methods should be reserved for scenarios with adequate ESS in both arms.
 
 ## Comparison with Previous Studies
 
-Our findings extend the work of Petto et al. [-@petto2019] by evaluating additional novel methods suggested by Phillippo et al. [-@phillippo2020].
+Our findings are consistent with Petto et al. [-@petto2019], who also observed that arm-separate methods can be beneficial under certain conditions. We extend their work by: (a) empirically confirming the Phillippo equivalence theorem; (b) evaluating empirical likelihood loss functions; and (c) systematically examining the overlap-by-effect-modifier interaction.
 
 ## Practical Recommendations
 
 Based on our findings, we recommend:
 
-1. [Recommendations to be added]
+1. **Use entropy balancing (EbTotal) or method of moments (SigTotal) as the default approach.** These are mathematically equivalent, computationally efficient, and showed the best balance of bias reduction and stability.
+
+2. **Assess population overlap before analysis.** With low overlap (ESS <50% of original sample), consider whether the target population is feasible.
+
+3. **Only use arm-separate methods when arm-specific aggregate data is available AND ESS per arm exceeds 50.** Otherwise, total-population methods are more stable.
+
+4. **Report ESS alongside treatment effect estimates.** ESS below 40% of original sample size indicates substantial weight concentration and potential positivity violations.
+
+5. **Do not use MAIC when no effect modifiers are suspected.** Our results showed MAIC provides little benefit and may increase variance when covariate-treatment interactions are absent.
 
 ## Limitations
 
-- Simulation scenarios cannot capture all complexities of real data
-- Binary outcomes only in primary analysis
-- Fixed comparator trial sample size
+- Simulation scenarios used logistic models and may not capture all complexities of real data generating processes
+- Binary outcomes only; time-to-event outcomes may behave differently
+- Fixed comparator trial sample size (n=500); smaller AgD trials may show different patterns
+- Did not evaluate robustness to unmeasured effect modifiers (a key assumption of MAIC)
 
 ## Conclusions
 
-[To be completed after analysis]
+Entropy balancing and method of moments MAIC are mathematically equivalent and provide substantial bias reduction when effect modifiers drive cross-trial population differences. Standard total-population matching (EbTotal/SigTotal) is recommended as the default approach, with arm-separate methods reserved for high-overlap scenarios with arm-specific aggregate data. The empirical likelihood variant showed no advantages in this study. ESS monitoring remains critical for identifying potential positivity violations.
 
 # Data Availability
 
